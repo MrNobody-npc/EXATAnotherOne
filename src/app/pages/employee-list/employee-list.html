@@ -1,0 +1,34 @@
+<div class="list-container">
+  <h2>Employee List</h2>
+  <button (click)="goToAddEmployee()" class="btn-add">Add Employee</button>
+
+  <table>
+    <thead>
+      <tr>
+        <th>ID</th>
+        <th>Code</th>
+        <th>Prefix</th>
+        <th>First Name</th>
+        <th>Last Name</th>
+        <th>Sex</th>
+        <th>Actions</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr *ngFor="let emp of employees">
+        <td>{{emp.EMP_ID}}</td>
+        <td>{{emp.EMP_CODE}}</td>
+        <td>{{emp.EMP_PREFIX}}</td>
+        <td>{{emp.EMP_FNAME}}</td>
+        <td>{{emp.EMP_LNAME}}</td>
+        <td>{{emp.EMP_SEX}}</td>
+        <td>
+          <button class="btn-edit" (click)="editEmployee(emp.EMP_ID)">Edit</button>
+          <button class="btn-delete" (click)="deleteEmployee(emp.EMP_ID)">Delete</button>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+
+  <div *ngIf="employees.length === 0" class="no-data">No employees found.</div>
+</div>

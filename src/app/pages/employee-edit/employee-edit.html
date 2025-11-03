@@ -1,0 +1,34 @@
+<h2>Edit Employee</h2>
+
+<form (ngSubmit)="save()" *ngIf="employee">
+  <div>
+    <label>Employee Code:</label>
+    <input type="text" [(ngModel)]="employee.EMP_CODE" name="EMP_CODE" required />
+  </div>
+
+  <div>
+    <label>Prefix:</label>
+    <input type="text" [(ngModel)]="employee.EMP_PREFIX" name="EMP_PREFIX" required />
+  </div>
+
+  <div>
+    <label>First Name:</label>
+    <input type="text" [(ngModel)]="employee.EMP_FNAME" name="EMP_FNAME" required />
+  </div>
+
+  <div>
+    <label>Last Name:</label>
+    <input type="text" [(ngModel)]="employee.EMP_LNAME" name="EMP_LNAME" required />
+  </div>
+
+  <div>
+    <label>Sex:</label>
+    <select [(ngModel)]="employee.EMP_SEX" name="EMP_SEX" required>
+      <option value="M">Male</option>
+      <option value="F">Female</option>
+    </select>
+  </div>
+
+  <button type="submit">Save</button>
+  <button type="button" (click)="cancel()">Cancel</button>
+</form>

@@ -1,37 +1,51 @@
 import { Injectable } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
-import { Observable } from 'rxjs';
+import { AppConfig } from '../config/config';
+import { HttpClient, HttpHeaders } from '@angular/common/http';
+import { Router } from '@angular/router';
+import { InitialCurrent } from '../config/initial_current';
+import { Employee } from '../model/employeeModel';
 
 @Injectable({
   providedIn: 'root'
 })
 export class EmployeeService {
-  private apiUrl = 'http://localhost:3000/api/employees';
+  public config: AppConfig = new AppConfig();  
+  public initial_current: InitialCurrent = new InitialCurrent();  
 
-  constructor(private http: HttpClient) {}
+  httpHeaders = new HttpHeaders({});
+  options = { headers: this.httpHeaders };
 
-  // ✅ get all employees
-  getAll(): Observable<any> {
-    return this.http.get(this.apiUrl);
+  constructor(private http: HttpClient, private router: Router) {
+    this.doGetInitialCurrent();
   }
 
-  // ✅ get employee by ID
-  getById(id: number): Observable<any> {
-    return this.http.get(`${this.apiUrl}/${id}`);
+  doGetInitialCurrent() {    
+    this.initial_current = JSON.parse(localStorage.getItem(AppConfig.LOCALInitial) || '{}');
+    this.httpHeaders = new HttpHeaders({
+      'Content-Type': 'application/json; charset=utf-8',
+      'Accept': 'application/json',
+      'Cache-Control': 'no-cache'
+    });
+    this.options = { headers: this.httpHeaders };
   }
 
-  // ✅ add new employee
-  addEmployee(employee: any): Observable<any> {
-    return this.http.post(this.apiUrl, employee);
+  async employee_getAll() {
+    return await this.http.get<any[]>(this.config.ApiUrl, this.options).toPromise();
   }
 
-  // ✅ update employee
-  updateEmployee(id: number, employee: any): Observable<any> {
-    return this.http.put(`${this.apiUrl}/${id}`, employee);
+  async employee_getById(id: number) {
+    return await this.http.get<any>(`${this.config.ApiUrl}/${id}`, this.options).toPromise();
   }
 
-  // ✅ delete employee
-  deleteEmployee(id: number): Observable<any> {
-    return this.http.delete(`${this.apiUrl}/${id}`);
+  async employee_save(model: Employee) {
+    if (model.EMP_ID) {
+      return await this.http.put(`${this.config.ApiUrl}/${model.EMP_ID}`, model, this.options).toPromise();
+    } else {
+      return await this.http.post(this.config.ApiUrl, model, this.options).toPromise();
+    }
+  }
+
+  async employee_remove(id: number) {
+    return await this.http.delete(`${this.config.ApiUrl}/${id}`, this.options).toPromise();
   }
 }

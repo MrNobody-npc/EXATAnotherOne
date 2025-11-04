@@ -1,36 +1,42 @@
 import { Component } from '@angular/core';
-import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
-import { HttpClient } from '@angular/common/http';
 import { FormsModule } from '@angular/forms';
+import { CommonModule } from '@angular/common';
+import { EmployeeService } from '../../services/employee';
+import { Employee } from '../../model/employeeModel';
 
 @Component({
   selector: 'app-employee-add',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [FormsModule, CommonModule],
   templateUrl: './employee-add.html',
   styleUrls: ['./employee-add.scss']
 })
-export class EmployeeAddComponent {
-  employee: any = {};
-  apiUrl = 'http://localhost:3000/api/employees'; // ✅ Make sure backend matches this URL
+export class EmployeeAdd {
+  employee: Employee = new Employee();
 
-  constructor(private http: HttpClient, private router: Router) {}
+  constructor(private employeeService: EmployeeService, private router: Router) {}
 
-  save() {
-    this.http.post(this.apiUrl, this.employee).subscribe({
-      next: () => {
-        alert('✅ Employee added successfully!');
-        this.router.navigate(['/employees']);
-      },
-      error: (err) => {
-        console.error('Error saving employee:', err);
-        alert('❌ Failed to add employee. Check the console for details.');
-      }
-    });
+  async save() {
+  try {
+    const result: any = await this.employeeService.employee_save(this.employee);
+    console.log('Server response:', result);
+
+    // Check message from backend
+    if (result && result.message) {
+      alert('✅ ' + result.message);
+    } else {
+      alert('✅ Employee added successfully!');
+    }
+
+    this.router.navigateByUrl('/employees');
+  } catch (error) {
+    console.error('❌ Error saving employee:', error);
+    alert('❌ Failed to save employee');
   }
+}
 
   cancel() {
-    this.router.navigate(['/employees']);
+    this.router.navigateByUrl('/employees');
   }
 }

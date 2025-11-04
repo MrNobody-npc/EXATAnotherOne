@@ -30,5 +30,6 @@
     </tbody>
   </table>
 
-  <div *ngIf="employees.length === 0" class="no-data">No employees found.</div>
-</div>
+ <ng-template #noData>
+    <p>No employees found.</p>
+  </ng-template>

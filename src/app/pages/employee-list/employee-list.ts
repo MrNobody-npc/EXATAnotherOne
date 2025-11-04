@@ -1,38 +1,32 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { Router } from '@angular/router';
-import { HttpClient } from '@angular/common/http';
+import { RouterModule, Router } from '@angular/router';
+import { EmployeeService } from '../../services/employee';
+import { Employee } from '../../model/employeeModel';
 
 @Component({
   selector: 'app-employee-list',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, RouterModule],
   templateUrl: './employee-list.html',
-  styleUrls: ['./employee-list.scss']
+  styleUrls: ['./employee-list.scss'],
 })
 export class EmployeeListComponent implements OnInit {
-  employees: any[] = [];
-  apiUrl = 'http://localhost:3000/employees';
+  employees: Employee[] = [];
 
-  constructor(private http: HttpClient, private router: Router) {}
+  constructor(private employeeService: EmployeeService, private router: Router) {}
 
-  ngOnInit() {
+  ngOnInit(): void {
     this.loadEmployees();
   }
 
-  loadEmployees() {
-    this.http.get<any[]>(this.apiUrl).subscribe({
-      next: data => this.employees = data,
-      error: err => console.error('Error fetching employees:', err)
-    });
-  }
-
-  deleteEmployee(id: number) {
-    if (confirm('Are you sure you want to delete this employee?')) {
-      this.http.delete(`${this.apiUrl}/${id}`).subscribe({
-        next: () => this.loadEmployees(),
-        error: err => console.error(err)
-      });
+  async loadEmployees() {
+    try {
+      const data = await this.employeeService.employee_getAll();
+      this.employees = data ?? []; // ✅ fallback in case undefined
+    } catch (error) {
+      console.error('Error loading employees:', error);
+      this.employees = [];
     }
   }
 
@@ -40,7 +34,32 @@ export class EmployeeListComponent implements OnInit {
     this.router.navigate(['/add']);
   }
 
-  editEmployee(id: number) {
+  editEmployee(id?: number) {
+    if (!id) return;
     this.router.navigate(['/edit', id]);
   }
+
+  async deleteEmployee(id?: number) {
+  if (id === undefined) {
+    console.error('❌ No ID provided for deletion.');
+    return;
+  }
+
+  if (!confirm('Are you sure you want to delete this employee?')) return;
+
+  try {
+    const result: any = await this.employeeService.employee_remove(id);
+    if (result && result.message) {
+      alert('✅ ' + result.message);
+    } else {
+      alert('✅ Employee deleted successfully!');
+    }
+
+    this.loadEmployees();
+  } catch (error) {
+    console.error('Error deleting employee:', error);
+    alert('❌ Failed to delete employee');
+  }
+}
+
 }
